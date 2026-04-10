@@ -1,0 +1,48 @@
+dataset:
+  train_dir: data/frequency/train
+  val_dir: data/frequency/val
+  test_dir: data/frequency/test
+  image_size: 160
+  num_workers: 0
+
+preprocessing:
+  normalize_mode: minmax
+  face_margin: 24
+  frames_per_video: 12
+  frame_stride: 10
+  detector_device: cpu
+  fail_on_missing_face: false
+
+training:
+  batch_size: 16
+  epochs: 12
+  learning_rate: 0.0002
+  weight_decay: 0.0001
+  early_stopping_patience: 4
+  decision_threshold: 0.5
+  seed: 42
+  threshold_metric: accuracy
+
+model:
+  spatial_backbone: resnet18
+  pretrained: true
+  freeze_backbone: false
+  frequency_channels: [24, 48, 96]
+  fusion_hidden_dim: 128
+  use_attention_fusion: true
+  attention_hidden_dim: 64
+  dropout: 0.35
+
+augmentation:
+  horizontal_flip: 0.5
+  gaussian_blur: 0.15
+  jpeg_noise: 0.2
+  brightness_jitter: 0.15
+  contrast_jitter: 0.15
+
+output:
+  checkpoint_path: models/dual_branch_best.pt
+  metrics_path: outputs/dual_branch_metrics.json
+  history_path: outputs/dual_branch_history.json
+  confusion_matrix_path: outputs/dual_branch_confusion_matrix.png
+  visualization_dir: outputs/visualizations

@@ -1,0 +1,29 @@
+input:
+  fps_hint: 30.0
+  max_seconds: 20
+
+face_mesh:
+  max_num_faces: 1
+  refine_landmarks: true
+  min_detection_confidence: 0.5
+  min_tracking_confidence: 0.5
+
+roi:
+  use_forehead: true
+  use_left_cheek: true
+  use_right_cheek: true
+
+signal:
+  min_samples: 90
+  low_hz: 0.7
+  high_hz: 2.5
+  detrend_window_seconds: 1.2
+  smoothing_window: 5
+
+classification:
+  snr_threshold: 4.5
+  peak_prominence: 0.015
+  min_valid_frames: 45
+
+output:
+  visualization_dir: outputs/liveness

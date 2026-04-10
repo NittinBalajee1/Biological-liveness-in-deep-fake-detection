@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local secrets and OS files
+.env
+.env.*
+!.env.example
+Thumbs.db
+.DS_Store
+
+# Datasets and generated artifacts
+data/
+datasets/
+raw_dataset/
+FaceForensics-master/
+outputs/
+models/
+
+# Large media/checkpoints
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.mpeg
+*.pt
+*.pth
+*.onnx
+*.joblib
+*.pkl
+*.zip
+*.tar
+*.tar.gz
+*.7z
+
+# Local generated reports/visualizations
+*.log
+*.tmp
+
+# Keep source folders
+!src/
+!configs/
+!templates/

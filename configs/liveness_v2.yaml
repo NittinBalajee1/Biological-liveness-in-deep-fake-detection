@@ -1,0 +1,47 @@
+input:
+  fps_hint: 30.0
+  max_seconds: 20
+  inspect_frame_limit: 120
+
+face_mesh:
+  max_num_faces: 1
+  refine_landmarks: true
+  min_detection_confidence: 0.55
+  min_tracking_confidence: 0.55
+
+roi:
+  forehead_center: true
+  forehead_left: true
+  forehead_right: true
+  left_cheek_upper: true
+  right_cheek_upper: true
+  left_temple: true
+  right_temple: true
+
+signal:
+  min_samples: 120
+  low_hz: 0.7
+  high_hz: 2.5
+  resting_low_hz: 1.0
+  resting_high_hz: 1.5
+  detrend_window_seconds: 1.4
+  pos_window_seconds: 1.6
+  smoothing_window: 5
+  roi_trim_percent: 0.1
+  ica_components: 3
+  roi_quality_floor: 0.05
+
+classification:
+  snr_threshold: 3.2
+  live_score_threshold: 0.68
+  peak_prominence: 0.015
+  min_valid_frames: 75
+  min_bpm: 60.0
+  max_bpm: 150.0
+  min_support_count: 2
+  min_motion_quality: 0.35
+  low_brightness_relaxation: 0.1
+  low_brightness_cutoff: 0.34
+
+output:
+  visualization_dir: outputs/liveness_v2

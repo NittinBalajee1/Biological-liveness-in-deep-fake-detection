@@ -1,0 +1,53 @@
+dataset:
+  train_dir: data/ffpp_frequency/train
+  val_dir: data/ffpp_frequency/val
+  test_dir: data/ffpp_frequency/test
+  image_size: 160
+  num_workers: 0
+
+preprocessing:
+  normalize_mode: minmax
+  face_margin: 24
+  frames_per_video: 12
+  frame_stride: 10
+  detector_device: cpu
+  fail_on_missing_face: false
+
+training:
+  batch_size: 16
+  epochs: 12
+  learning_rate: 0.0002
+  weight_decay: 0.0001
+  early_stopping_patience: 4
+  decision_threshold: 0.45
+  seed: 42
+  threshold_metric: f1_score
+  frequency_attention_target: 0.42
+  frequency_attention_penalty: 0.35
+
+model:
+  spatial_backbone: resnet18
+  pretrained: true
+  freeze_backbone: false
+  frequency_channels: [24, 48, 96]
+  fusion_hidden_dim: 128
+  use_attention_fusion: true
+  attention_hidden_dim: 64
+  dropout: 0.35
+  spatial_logit_bias: -0.1
+  frequency_logit_bias: 0.18
+  attention_temperature: 0.85
+
+augmentation:
+  horizontal_flip: 0.5
+  gaussian_blur: 0.15
+  jpeg_noise: 0.25
+  brightness_jitter: 0.15
+  contrast_jitter: 0.15
+
+output:
+  checkpoint_path: models/ffpp_dual_branch_frequency_biased.pt
+  metrics_path: outputs/ffpp_dual_branch_frequency_biased_metrics.json
+  history_path: outputs/ffpp_dual_branch_frequency_biased_history.json
+  confusion_matrix_path: outputs/ffpp_dual_branch_frequency_biased_confusion_matrix.png
+  visualization_dir: outputs/visualizations

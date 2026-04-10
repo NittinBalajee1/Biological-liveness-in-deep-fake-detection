@@ -1,0 +1,24 @@
+dataset:
+  train_dir: data/train
+  val_dir: data/val
+  test_dir: data/test
+  image_size: 256
+
+features:
+  radial_bins: 32
+  log_magnitude: true
+  normalize_spectrum: true
+
+model:
+  type: random_forest
+  random_state: 42
+  n_estimators: 300
+  max_depth: 14
+  min_samples_split: 4
+  min_samples_leaf: 2
+
+output:
+  model_path: models/frequency_detector.joblib
+  metrics_path: outputs/metrics.json
+  confusion_matrix_path: outputs/confusion_matrix.png
+  feature_importance_path: outputs/feature_importance.png

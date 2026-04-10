@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Biological Liveness Detection</title>
+  <style>
+    :root {
+      --sun-red: #F3000E;
+      --daybreak-orange: #F25016;
+      --sapphire: #6596F3;
+      --emerald: #83B366;
+      --orchid: #D3A4EA;
+      --daybreak-gold: #EAD094;
+      --mist: #B2DCE2;
+      --soft-leaf: #D7EAAC;
+      --ink: #152B33;
+      --muted: #60737a;
+      --panel: rgba(255, 255, 251, 0.88);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Aptos", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 8% 5%, rgba(101, 150, 243, 0.24), transparent 28%),
+        radial-gradient(circle at 94% 8%, rgba(234, 208, 148, 0.40), transparent 28%),
+        radial-gradient(circle at 10% 100%, rgba(131, 179, 102, 0.20), transparent 34%),
+        linear-gradient(180deg, #f5fbfc 0%, #eef8f7 48%, #fff7e3 100%);
+    }
+
+    .shell {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 34px 0 56px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 20px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(101, 150, 243, 0.18);
+      border-radius: 28px;
+      box-shadow: 0 20px 48px rgba(36, 70, 90, 0.11);
+      backdrop-filter: blur(18px);
+      padding: 24px;
+    }
+
+    .kicker {
+      color: var(--sapphire);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      max-width: 760px;
+      font-size: clamp(36px, 5vw, 68px);
+      line-height: 0.95;
+      letter-spacing: -0.055em;
+    }
+
+    .note {
+      color: var(--muted);
+      line-height: 1.7;
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .upload-form {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    input[type="file"], input[type="text"] {
+      width: 100%;
+      border: 1px solid rgba(21, 43, 51, 0.12);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      padding: 13px 14px;
+      color: var(--ink);
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, var(--sapphire), var(--emerald));
+      color: white;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      box-shadow: 0 14px 28px rgba(101, 150, 243, 0.28);
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin: 18px 0 22px;
+    }
+
+    .metric {
+      min-height: 132px;
+      padding: 20px;
+    }
+
+    .metric-label {
+      color: #789096;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    .metric-value {
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: -0.035em;
+      word-break: break-word;
+    }
+
+    .metric-caption {
+      color: var(--muted);
+      margin-top: 10px;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .authenticated { color: #477b38; }
+    .synthetic { color: var(--daybreak-orange); }
+
+    .video-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    video, .frame-player img {
+      width: 100%;
+      border-radius: 24px;
+      background: #10262d;
+      display: block;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    }
+
+    .frame-player {
+      background: #10262d;
+      border-radius: 26px;
+      padding: 10px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    }
+
+    .player-controls {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .player-controls button {
+      padding: 10px 14px;
+      box-shadow: none;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--sapphire);
+    }
+
+    .view-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 16px 0 0;
+    }
+
+    .view-tab {
+      border: 1px solid rgba(101, 150, 243, 0.24);
+      background: rgba(178, 220, 226, 0.28);
+      color: #315d66;
+      padding: 10px 13px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .view-tab.active {
+      background: var(--ink);
+      color: white;
+      border-color: var(--ink);
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      letter-spacing: -0.03em;
+      font-size: 24px;
+    }
+
+    .mini-row {
+      border-top: 1px solid rgba(21, 43, 51, 0.08);
+      padding: 13px 0;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .mini-row:first-of-type { border-top: 0; }
+    .badge {
+      display: inline-flex;
+      border-radius: 999px;
+      background: rgba(215, 234, 172, 0.42);
+      color: #54733a;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .error {
+      border-color: rgba(243, 0, 14, 0.24);
+      background: rgba(243, 0, 14, 0.07);
+      color: #9a1c20;
+      margin-bottom: 18px;
+    }
+
+    .graphs {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .evidence-layout {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-top: 18px;
+      align-items: start;
+    }
+
+    .chart-card-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 210px;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    canvas {
+      width: 100%;
+      height: 300px;
+      border-radius: 20px;
+      display: block;
+      border: 1px solid rgba(101, 150, 243, 0.14);
+      box-shadow: 0 14px 32px rgba(36, 70, 90, 0.08);
+      background: #fffdf4;
+      padding: 10px;
+    }
+
+    .graph-card {
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .graph-card h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 0 5px rgba(178, 220, 226, 0.24);
+    }
+
+    .legend-side {
+      border-left: 1px solid rgba(21, 43, 51, 0.08);
+      padding-left: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .legend-item {
+      display: grid;
+      grid-template-columns: 12px 1fr;
+      gap: 9px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    @media (max-width: 900px) {
+      .hero, .video-layout { grid-template-columns: 1fr; }
+      .status-grid { grid-template-columns: repeat(2, 1fr); }
+      .graphs { grid-template-columns: 1fr; }
+      .chart-card-inner { grid-template-columns: 1fr; }
+      .legend-side { border-left: 0; border-top: 1px solid rgba(21, 43, 51, 0.08); padding-left: 0; padding-top: 14px; }
+      .evidence-layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .status-grid { grid-template-columns: 1fr; }
+      .shell { width: min(100vw - 20px, 1180px); }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="panel">
+        <div class="kicker">Emerald Sapphire Daybreak</div>
+        <h1>Biological Liveness Detection</h1>
+        <p class="note">
+          Upload a face video and the system renders a clean processed video with moving ROI overlays.
+          Use the video controls to pause, scrub, and explain the green-channel and frequency evidence directly on the face.
+        </p>
+      </div>
+      <form class="panel upload-form" method="post" enctype="multipart/form-data">
+        <label>
+          <div class="kicker">Config</div>
+          <input type="text" name="config_path" value="{{ config_path }}">
+        </label>
+        <label>
+          <div class="kicker">Video Upload</div>
+          <input type="file" name="video" accept="video/*" required>
+        </label>
+        <button type="submit">Analyze Video</button>
+      </form>
+    </section>
+
+    {% if error %}
+      <section class="panel error">{{ error }}</section>
+    {% endif %}
+
+    {% if result %}
+      <section class="status-grid">
+        <div class="panel metric">
+          <div class="metric-label">Status</div>
+          <div class="metric-value {{ 'authenticated' if result.status_raw == 'authenticated' else 'synthetic' }}">{{ result.status }}</div>
+          <div class="metric-caption">Final liveness verdict</div>
+        </div>
+        <div class="panel metric">
+          <div class="metric-label">Estimated BPM</div>
+          <div class="metric-value">{{ result.bpm }}</div>
+          <div class="metric-caption">Dominant physiological peak</div>
+        </div>
+        <div class="panel metric">
+          <div class="metric-label">Pulse Score</div>
+          <div class="metric-value">{{ result.pulse_score }}</div>
+          <div class="metric-caption">Biological rhythm evidence</div>
+        </div>
+        <div class="panel metric">
+          <div class="metric-label">Motion Score</div>
+          <div class="metric-value">{{ result.motion_score }}</div>
+          <div class="metric-caption">Face tracking stability</div>
+        </div>
+        <div class="panel metric">
+          <div class="metric-label">Signal Grade</div>
+          <div class="metric-value">{{ result.signal_grade }}</div>
+          <div class="metric-caption">Presentation-safe evidence level</div>
+        </div>
+      </section>
+
+      <section class="video-layout">
+        <div class="panel">
+          <h2>Processed Video</h2>
+          <div class="frame-player">
+            <img id="processedFrame" alt="Processed liveness frame">
+          </div>
+          <div class="player-controls">
+            <button type="button" id="playButton">Play</button>
+            <input type="range" id="frameSlider" min="0" max="0" value="0">
+            <span class="note" id="frameLabel">Frame 0 / 0</span>
+          </div>
+          <div class="view-tabs">
+            <button type="button" class="view-tab" data-view="outline">ROI Outline</button>
+            <button type="button" class="view-tab" data-view="green">Green Signal On Face</button>
+            <button type="button" class="view-tab active" data-view="frequency">Frequency Evidence On Face</button>
+          </div>
+          <p class="note" style="margin-top: 14px;">
+            This player uses rendered analysis frames, so it works even when browser MP4 codecs fail.
+            Use Play/Pause or scrub the slider to explain ROI movement frame by frame.
+          </p>
+        </div>
+
+      </section>
+
+      <section class="graphs">
+        <div class="panel graph-card">
+          <h2><span class="dot" style="background: var(--emerald);"></span>Green Signals</h2>
+          <div class="chart-card-inner">
+            <canvas id="greenChart"></canvas>
+            <div class="legend-side" id="greenLegend"></div>
+          </div>
+        </div>
+        <div class="panel graph-card">
+          <h2><span class="dot" style="background: var(--sapphire);"></span>Processed Signals</h2>
+          <div class="chart-card-inner">
+            <canvas id="signalsChart"></canvas>
+            <div class="legend-side" id="signalsLegend"></div>
+          </div>
+        </div>
+        <div class="panel graph-card">
+          <h2><span class="dot" style="background: var(--daybreak-orange);"></span>Frequency Evidence</h2>
+          <div class="chart-card-inner">
+            <canvas id="fftChart"></canvas>
+            <div class="legend-side" id="fftLegend"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="evidence-layout">
+        <aside class="panel">
+          <h2>Evidence Summary</h2>
+          <p class="note">
+            Frames read: <strong>{{ result.frames_read }}</strong><br>
+            Valid face frames: <strong>{{ result.valid_frames }}</strong><br>
+            Primary signal: <strong>{{ result.primary_signal }}</strong>
+          </p>
+
+          <h2 style="margin-top: 24px;">Signal Branches</h2>
+          {% for row in result.component_rows %}
+            <div class="mini-row">
+              <div>
+                <strong>{{ row.name }}</strong><br>
+                <span class="note">BPM {{ row.bpm }} | Score {{ row.score }}</span>
+              </div>
+              <span class="badge">{{ 'Primary' if row.primary else row.grade }}</span>
+            </div>
+          {% endfor %}
+
+          <h2 style="margin-top: 24px;">ROI Evidence</h2>
+          {% for row in result.roi_rows %}
+            <div class="mini-row">
+              <div>
+                <strong>{{ row.name }}</strong><br>
+                <span class="note">Pulse score {{ row.score }} | Contribution {{ row.contribution }}</span>
+              </div>
+              <span class="badge">{{ row.grade }}</span>
+            </div>
+          {% endfor %}
+        </aside>
+
+        <aside class="panel">
+          <h2>Demo Explanation</h2>
+          <p class="note">
+            The video panel shows how the ROI moves with the face. The green overlay shows where skin-color
+            pulse changes are strongest. The frequency overlay shows which regions provide stronger periodic
+            pulse evidence. The graphs below confirm whether that signal forms a clean rhythm.
+          </p>
+          <p class="note" style="margin-top: 14px;">
+            A real subject should show a plausible BPM, high pulse score, stable motion score, and enough
+            valid face frames. If one signal branch dominates, the system can still authenticate when the
+            biological evidence is stable and consistent.
+          </p>
+        </aside>
+      </section>
+    {% endif %}
+  </main>
+
+  <script>
+    const frameSets = {{ result.frames | tojson if result else '{}' }};
+    const chartData = {{ result.chart_data | tojson if result else '{}' }};
+    const palette = ["#83B366", "#6596F3", "#D3A4EA", "#F25016", "#B2DCE2", "#D7EAAC", "#EAD094", "#152B33"];
+    const image = document.getElementById("processedFrame");
+    const slider = document.getElementById("frameSlider");
+    const frameLabel = document.getElementById("frameLabel");
+    const playButton = document.getElementById("playButton");
+    const buttons = document.querySelectorAll(".view-tab");
+    let activeView = "frequency";
+    let frameIndex = 0;
+    let timer = null;
+
+    function frames() {
+      return frameSets[activeView] || [];
+    }
+
+    function renderFrame() {
+      const current = frames();
+      if (!image || !current.length) return;
+      frameIndex = Math.max(0, Math.min(frameIndex, current.length - 1));
+      image.src = current[frameIndex];
+      slider.max = Math.max(0, current.length - 1);
+      slider.value = frameIndex;
+      frameLabel.textContent = `Frame ${frameIndex + 1} / ${current.length}`;
+    }
+
+    function stopPlayback() {
+      if (timer) clearInterval(timer);
+      timer = null;
+      if (playButton) playButton.textContent = "Play";
+    }
+
+    function startPlayback() {
+      stopPlayback();
+      timer = setInterval(() => {
+        const current = frames();
+        if (!current.length) return;
+        frameIndex = (frameIndex + 1) % current.length;
+        renderFrame();
+      }, 120);
+      playButton.textContent = "Pause";
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        buttons.forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        activeView = button.dataset.view;
+        renderFrame();
+      });
+    });
+
+    if (slider) {
+      slider.addEventListener("input", () => {
+        frameIndex = Number(slider.value);
+        renderFrame();
+      });
+    }
+
+    if (playButton) {
+      playButton.addEventListener("click", () => {
+        if (timer) stopPlayback();
+        else startPlayback();
+      });
+    }
+
+    renderFrame();
+
+    function makeLegend(elementId, series) {
+      const legend = document.getElementById(elementId);
+      if (!legend) return;
+      legend.innerHTML = "";
+      series.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "legend-item";
+        row.innerHTML = `<span class="legend-swatch" style="background:${palette[index % palette.length]}"></span><span>${item.name}</span>`;
+        legend.appendChild(row);
+      });
+    }
+
+    function chartBounds(series, spectrum=false) {
+      const ys = [];
+      series.forEach((item) => {
+        const values = spectrum ? item.y : item.values;
+        (values || []).forEach((value) => ys.push(Number(value)));
+      });
+      if (!ys.length) return { min: 0, max: 1 };
+      const min = Math.min(...ys);
+      const max = Math.max(...ys);
+      const pad = Math.max((max - min) * 0.12, 0.0001);
+      return { min: min - pad, max: max + pad };
+    }
+
+    function drawLineChart(canvasId, legendId, series, options={}) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas || !series || !series.length) return;
+      const rect = canvas.getBoundingClientRect();
+      const scale = window.devicePixelRatio || 1;
+      canvas.width = Math.max(640, Math.floor(rect.width * scale));
+      canvas.height = Math.floor(300 * scale);
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      const width = canvas.width / scale;
+      const height = canvas.height / scale;
+      const pad = { left: 48, right: 18, top: 24, bottom: 42 };
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#FFFDF4";
+      ctx.fillRect(0, 0, width, height);
+
+      const bounds = chartBounds(series, options.spectrum);
+      const plotW = width - pad.left - pad.right;
+      const plotH = height - pad.top - pad.bottom;
+
+      if (options.spectrum) {
+        const reference = series.find((item) => item.x && item.x.length) || {};
+        const xs = reference.x || [0.65, 2.55];
+        const xMin = Math.min(...xs.map(Number));
+        const xMax = Math.max(...xs.map(Number));
+        const sx = pad.left + ((1.0 - xMin) / ((xMax - xMin) || 1)) * plotW;
+        const ex = pad.left + ((1.5 - xMin) / ((xMax - xMin) || 1)) * plotW;
+        ctx.fillStyle = "rgba(131, 179, 102, 0.14)";
+        ctx.fillRect(sx, pad.top, ex - sx, plotH);
+      }
+
+      ctx.strokeStyle = "rgba(96, 115, 122, 0.16)";
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = pad.top + (plotH * i / 4);
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(width - pad.right, y);
+        ctx.stroke();
+      }
+
+      series.forEach((item, index) => {
+        const color = palette[index % palette.length];
+        const values = options.spectrum ? item.y : item.values;
+        const xs = options.spectrum ? item.x : values.map((_, i) => i);
+        if (!values || values.length < 2) return;
+        const xMin = Math.min(...xs.map(Number));
+        const xMax = Math.max(...xs.map(Number));
+        ctx.beginPath();
+        values.forEach((value, i) => {
+          const xRaw = Number(xs[i]);
+          const x = pad.left + ((xRaw - xMin) / ((xMax - xMin) || 1)) * plotW;
+          const y = pad.top + (1 - ((Number(value) - bounds.min) / ((bounds.max - bounds.min) || 1))) * plotH;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = color;
+        ctx.lineWidth = item.name === "Combined" ? 3 : 1.8;
+        ctx.globalAlpha = item.name === "Combined" ? 1 : 0.78;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      });
+
+      ctx.fillStyle = "#60737A";
+      ctx.font = "12px Segoe UI";
+      ctx.fillText(options.xLabel || "Frame", pad.left, height - 14);
+      ctx.save();
+      ctx.translate(14, pad.top + plotH / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText(options.yLabel || "Amplitude", 0, 0);
+      ctx.restore();
+      makeLegend(legendId, series);
+    }
+
+    function drawCharts() {
+      drawLineChart("greenChart", "greenLegend", chartData.roi || [], { xLabel: "Frame", yLabel: "Green intensity" });
+      drawLineChart("signalsChart", "signalsLegend", chartData.signals || [], { xLabel: "Frame", yLabel: "Amplitude" });
+      drawLineChart("fftChart", "fftLegend", chartData.spectrum || [], { spectrum: true, xLabel: "Frequency (Hz)", yLabel: "Power" });
+    }
+
+    drawCharts();
+    window.addEventListener("resize", drawCharts);
+  </script>
+</body>
+</html>
